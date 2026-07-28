@@ -12,7 +12,8 @@ import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 
 import java.util.List;
 
-@TeleOp(name = "BBSimpleTeleop", group = "ArtemisDecode")
+
+@TeleOp(name = "BBSimpleTeleop", group = "ArtemisBioBuzz")
 public class BBSimpleTeleop extends OpMode {
 
     private Follower follower;
@@ -105,6 +106,7 @@ public class BBSimpleTeleop extends OpMode {
         }
 
 
+
         telemetry.addLine("===== YELLOW BALL =====");
         if (ballDetected) {
             telemetry.addData("Ball Detected", "YES ✓");
@@ -125,3 +127,4 @@ public class BBSimpleTeleop extends OpMode {
         limelight.stop();
     }
 }
+
