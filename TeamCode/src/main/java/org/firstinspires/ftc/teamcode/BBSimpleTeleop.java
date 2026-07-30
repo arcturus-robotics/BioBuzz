@@ -13,7 +13,7 @@ import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 import java.util.List;
 
 
-@TeleOp(name = "BBSimpleTeleop", group = "ArtemisBioBuzz")
+@TeleOp(name = "BBSimpleTeleop", group = "Pre-Season")
 public class BBSimpleTeleop extends OpMode {
 
     private Follower follower;

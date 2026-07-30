@@ -5,19 +5,11 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
-@TeleOp(name = "biobuzz first code", group = "Pre-Season")
-public class cheeseTeleop extends OpMode {
+@TeleOp(name = "Slide Position", group = "Pre-Season")
+public class slidePositionFinder extends OpMode {
     private DcMotor leftFront, rightFront, leftBack, rightBack;
-
-    private DcMotor intake;
-    private DcMotor transfer;
-
     private DcMotor slideOne;
     private DcMotor slideTwo;
-
-    private int maxSlide;
-    private int minSlide;
-
     private int slidePos;
 
     public void init() {
@@ -27,13 +19,8 @@ public class cheeseTeleop extends OpMode {
         leftBack = hardwareMap.get(DcMotor.class, "leftBack");
         rightBack = hardwareMap.get(DcMotor.class, "rightBack");
 
-
-        //define intake
-        intake = hardwareMap.get(DcMotor.class,"intake");
-        transfer = hardwareMap.get(DcMotor.class, "transfer");
         slideOne = hardwareMap.get(DcMotor.class, "slide1");
         slideTwo = hardwareMap.get(DcMotor.class, "slide2");
-
 
         leftFront.setDirection(DcMotorSimple.Direction.REVERSE);
         leftBack.setDirection(DcMotorSimple.Direction.REVERSE);
@@ -43,7 +30,6 @@ public class cheeseTeleop extends OpMode {
     }
 
     public void loop() {
-
 
         double axial = -gamepad1.left_stick_y;
         double lateral = gamepad1.left_stick_x;
@@ -69,18 +55,16 @@ public class cheeseTeleop extends OpMode {
         leftBack.setPower(bl / max);
         rightBack.setPower(br / max);
 
-        if (gamepad2.right_trigger_pressed){
-            intake.setPower(1);
-        }
-
-        if (gamepad2.left_trigger_pressed){
-            transfer.setPower(1);
-        }
 
         if (gamepad2.left_stick_y > 0.5) {
-            slidePos = maxSlide;
+            slidePos = slidePos + 1;
         } else if (gamepad2.left_stick_y < -0.5) {
-            slidePos = minSlide;
+            slidePos = slidePos + 1;
         }
+
+        telemetry.addData("Slide Position", slidePos);
+        telemetry.update();
     }
+
+
 }
