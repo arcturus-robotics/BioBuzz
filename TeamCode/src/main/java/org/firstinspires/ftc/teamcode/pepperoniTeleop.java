@@ -8,8 +8,8 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Servo;
 
-@TeleOp(name="JulyCampTeleop", group="Pre-Season")
-public class JulyCampTeleop extends OpMode {
+@TeleOp(name="Pepperoni", group="Pre-Season")
+public class pepperoniTeleop extends OpMode {
 
     //drive motors
     private DcMotor leftFrontDrive;
