@@ -16,42 +16,44 @@ public class cheeseTeleop extends OpMode {
 
     //intake motor
     private DcMotor intake;
+
     //transfer motor
     private DcMotor transfer;
 
+    //slide motors
     private DcMotor slideOne;
     private DcMotor slideTwo;
 
+    //slide positions
     private int maxSlide;
     private int minSlide;
-
     private int slidePos;
 
     public void init() {
 
+        // this is what we will refer to the motors/servos when configuring
         leftFront = hardwareMap.get(DcMotor.class, "leftFront");
         rightFront = hardwareMap.get(DcMotor.class, "rightFront");
         leftBack = hardwareMap.get(DcMotor.class, "leftBack");
         rightBack = hardwareMap.get(DcMotor.class, "rightBack");
 
-
-        //define intake
         intake = hardwareMap.get(DcMotor.class,"intake");
         transfer = hardwareMap.get(DcMotor.class, "transfer");
         slideOne = hardwareMap.get(DcMotor.class, "slide1");
         slideTwo = hardwareMap.get(DcMotor.class, "slide2");
 
-
+        //setting the directions of the motors
         leftFront.setDirection(DcMotorSimple.Direction.REVERSE);
         leftBack.setDirection(DcMotorSimple.Direction.REVERSE);
 
+        //sets positions for the slides
         slideOne.setTargetPosition(slidePos);
         slideTwo.setTargetPosition(slidePos);
     }
 
     public void loop() {
 
-
+        // drive code, just a bunch of math ignore this
         double axial = -gamepad1.left_stick_y;
         double lateral = gamepad1.left_stick_x;
         double yaw = gamepad1.right_stick_x;
@@ -76,18 +78,20 @@ public class cheeseTeleop extends OpMode {
         leftBack.setPower(bl / max);
         rightBack.setPower(br / max);
 
-        if (gamepad2.right_trigger_pressed){
-            intake.setPower(1);
+
+
+        if (gamepad2.right_trigger_pressed){ //if you press right trigger
+            intake.setPower(1); //turn on the intake
         }
 
-        if (gamepad2.left_trigger_pressed){
-            transfer.setPower(1);
+        if (gamepad2.left_trigger_pressed){ //if you press left trigger
+            transfer.setPower(1); //turn on the transfer
         }
 
-        if (gamepad2.left_stick_y > 0.5) {
-            slidePos = maxSlide;
-        } else if (gamepad2.left_stick_y < -0.5) {
-            slidePos = minSlide;
+        if (gamepad2.left_stick_y > 0.5) { //if you move left joystick up
+            slidePos = maxSlide; //the slide will go up
+        } else if (gamepad2.left_stick_y < -0.5) { //if you move left joystick down
+            slidePos = minSlide; //the slide will go down
         }
     }
 }

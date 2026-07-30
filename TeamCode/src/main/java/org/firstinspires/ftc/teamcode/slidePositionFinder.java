@@ -5,7 +5,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
-@TeleOp(name = "Slide Position", group = "Pre-Season")
+@TeleOp(name = "Slide Position Finder", group = "Pre-Season")
 public class slidePositionFinder extends OpMode {
     private DcMotor leftFront, rightFront, leftBack, rightBack;
     private DcMotor slideOne;

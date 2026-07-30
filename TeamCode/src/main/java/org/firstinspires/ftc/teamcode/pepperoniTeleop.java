@@ -60,7 +60,7 @@ public class pepperoniTeleop extends OpMode {
         rightFrontDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         rightBackDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
-        //sets positions for the slide & bucket
+        //sets positions for the slides
         slide.setTargetPosition(slidePos);
 
 
