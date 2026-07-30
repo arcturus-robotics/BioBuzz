@@ -1,22 +1,15 @@
-// this is saying "this file is in package org.firstinspires.ftc.teamcode"
 package org.firstinspires.ftc.teamcode;
 
-//import statements, basically brings code from other files/libraries into this file.
-//try deleting one of them and see what happens
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
-@TeleOp(name = "Cheese", group = "Pre-Season")
+@TeleOp(name = "biobuzz first code", group = "Pre-Season")
 public class cheeseTeleop extends OpMode {
-
-    //drive motors
     private DcMotor leftFront, rightFront, leftBack, rightBack;
 
-    //intake motor
     private DcMotor intake;
-    //transfer motor
     private DcMotor transfer;
 
     private DcMotor slideOne;
