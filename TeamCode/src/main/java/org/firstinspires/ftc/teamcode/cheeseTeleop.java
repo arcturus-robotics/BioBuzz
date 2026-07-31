@@ -7,6 +7,7 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.Servo;
 
 @TeleOp(name = "Cheese", group = "Pre-Season")
 public class cheeseTeleop extends OpMode {
@@ -18,14 +19,16 @@ public class cheeseTeleop extends OpMode {
     private DcMotor intake;
     //transfer motor
     private DcMotor transfer;
-
+    private Servo door;
     private DcMotor slideOne;
     private DcMotor slideTwo;
 
-    private int maxSlide;
-    private int minSlide;
+    private int maxSlide=2300;
+    private int minSlide=1;
 
-    private int slidePos;
+    private double slidepower=1;
+
+    private int slidePos=1;
 
     public void init() {
 
@@ -33,7 +36,7 @@ public class cheeseTeleop extends OpMode {
         rightFront = hardwareMap.get(DcMotor.class, "rightFront");
         leftBack = hardwareMap.get(DcMotor.class, "leftBack");
         rightBack = hardwareMap.get(DcMotor.class, "rightBack");
-
+        door = hardwareMap.get(Servo.class, "doorServo");
 
         //define intake
         intake = hardwareMap.get(DcMotor.class,"intake");
@@ -41,12 +44,23 @@ public class cheeseTeleop extends OpMode {
         slideOne = hardwareMap.get(DcMotor.class, "slide1");
         slideTwo = hardwareMap.get(DcMotor.class, "slide2");
 
+        slideOne.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        slideTwo.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
+        slideOne.setTargetPosition(slidePos);
+        slideTwo.setTargetPosition(-slidePos);
+
+        slideOne.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        slideTwo.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+        slideOne.setPower(slidepower);
+        slideTwo.setPower(slidepower);
 
         leftFront.setDirection(DcMotorSimple.Direction.REVERSE);
         leftBack.setDirection(DcMotorSimple.Direction.REVERSE);
 
-        slideOne.setTargetPosition(slidePos);
-        slideTwo.setTargetPosition(slidePos);
+        intake.setDirection(DcMotorSimple.Direction.REVERSE);
+
     }
 
     public void loop() {
@@ -78,17 +92,45 @@ public class cheeseTeleop extends OpMode {
 
         if (gamepad2.right_trigger_pressed){
             intake.setPower(1);
+        } else if (gamepad2.square) {
+            intake.setPower(-0.6);
+
+        } else{
+            intake.setPower(0);
         }
 
         if (gamepad2.left_trigger_pressed){
             transfer.setPower(1);
+        }else if (gamepad2.triangle) {
+            transfer.setPower(-0.6);
+        }
+        else{
+            transfer.setPower(0);
         }
 
-        if (gamepad2.left_stick_y > 0.5) {
+        if (gamepad2.right_bumper) {
             slidePos = maxSlide;
-        } else if (gamepad2.left_stick_y < -0.5) {
+        } else if (gamepad2.left_bumper) {
             slidePos = minSlide;
         }
+        if (gamepad2.left_stick_y >.5) {
+            slidePos = slidePos+1 ;
+        }
+        if (gamepad2.left_stick_y <-.5) {
+            slidePos = slidePos-1 ;
+        }
+        slideOne.setTargetPosition(slidePos);
+        slideTwo.setTargetPosition(-slidePos);
+        if(gamepad2.cross){
+            door.setPosition(0);
+        }
+        if(gamepad2.circle){
+            door.setPosition(0.5);
+        }
+        telemetry.addData("leftencoder",slideOne.getCurrentPosition());
+        telemetry.addData("rightencoder",slideTwo.getCurrentPosition());
+        telemetry.addData("slidetargetpos",slidePos);
+
+
     }
 }
-//
