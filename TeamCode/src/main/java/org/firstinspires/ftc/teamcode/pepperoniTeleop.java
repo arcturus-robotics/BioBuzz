@@ -6,6 +6,7 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 
 @TeleOp(name="Pepperoni", group="Pre-Season")
@@ -25,15 +26,15 @@ public class pepperoniTeleop extends OpMode {
     private Servo bucket;
 
     // intake power (set to 100%)
-    final private int intakePower = 1;
+    final private double intakePower = 0.3;
     // slide positions, self explanatory btw pos means position
-    private int maxSlidePos;
-    private int minSlidePos;
+    private int maxSlidePos = -6710;
+    private int minSlidePos =0;
     private int slidePos;
 
     // bucket positions
-    private double bucketScorePos;
-    private double bucketRestPos;
+    private double bucketScorePos = 0.75;
+    private double bucketRestPos = 0;
 
     @Override
     public void init() {
@@ -45,32 +46,44 @@ public class pepperoniTeleop extends OpMode {
 
         intake = hardwareMap.get(DcMotor.class, "intake");
         slide = hardwareMap.get(DcMotor.class, "slide");
+        bucket = hardwareMap.get(Servo.class, "bucket");
+
 
         //setting the directions of the motors
-        leftFrontDrive.setDirection(DcMotor.Direction.REVERSE);
+        leftFrontDrive.setDirection(DcMotor.Direction.FORWARD);
         leftBackDrive.setDirection(DcMotor.Direction.FORWARD);
         rightFrontDrive.setDirection(DcMotor.Direction.FORWARD);
         rightBackDrive.setDirection(DcMotor.Direction.FORWARD);
-        intake.setDirection(DcMotor.Direction.REVERSE);
-        slide.setDirection(DcMotor.Direction.REVERSE);
+        intake.setDirection(DcMotor.Direction.FORWARD);
+        slide.setDirection(DcMotor.Direction.FORWARD);
 
         //this means that the drive motors do not have encoder wires
         leftFrontDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         leftBackDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         rightFrontDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         rightBackDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        slide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
         //sets positions for the slides
+        bucket.setPosition(0);
+
+        //slide stuff
+        slide.setPower(1);
         slide.setTargetPosition(slidePos);
+        slide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+
+
 
 
         //confirms that the robot is initialized
-        telemetry.addLine("SIMPLE TELEOP READY");
+        telemetry.addLine("TELEOP INITIALIZED");
         telemetry.update();
     }
 
     @Override
     public void loop() {
+
 
         // drive code, just a bunch of math ignore this
         double axial   = -gamepad1.left_stick_y;
@@ -117,7 +130,7 @@ public class pepperoniTeleop extends OpMode {
         rightBackDrive.setPower(rightBackPower);
 
 
-        if (gamepad2.a) { // if you press a
+        if (gamepad2.dpad_down) { // if you press a
             intake.setPower(intakePower); // the intake will intake balls
         } else if (gamepad2.dpad_up) { // otherwise, if you press dpad up
             intake.setPower(-intakePower); // the intake will spin the opposite direction
@@ -125,14 +138,22 @@ public class pepperoniTeleop extends OpMode {
             intake.setPower(0); // don't move the intake
         }
 
-        if (gamepad2.left_stick_y > 0.5) { // if you move the left joystick up
-            slidePos = maxSlidePos; // the slide will move up
+        if (gamepad2.left_stick_y > 0.5) {
+            slidePos = slidePos + 10;
+            if (slidePos > -6710) slidePos = -6710;
+            slide.setTargetPosition(slidePos);
+        } else if (gamepad2.left_stick_y < -0.5) {
+            slidePos = slidePos - 10;
+            slide.setTargetPosition(slidePos);
+        }
+
+        if (gamepad2.left_bumper) {
             bucket.setPosition(bucketScorePos); // the bucket will tilt and score
-        } else if (gamepad2.left_stick_y < -0.5) { // otherwise, if you move the left joystick down
-            slidePos = minSlidePos; // the slide will move down
-            bucket.setPosition(bucketRestPos); // the bucket will go back down
+        } else if (gamepad2.right_bumper) {
+            bucket.setPosition(bucketRestPos);
         }
 
         telemetry.update();
+
     }
 }

@@ -8,25 +8,27 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 @TeleOp(name = "Slide Position Finder", group = "Pre-Season")
 public class slidePositionFinder extends OpMode {
     private DcMotor leftFront, rightFront, leftBack, rightBack;
-    private DcMotor slideOne;
-    private DcMotor slideTwo;
+    private DcMotor slide;
     private int slidePos;
 
     public void init() {
 
-        leftFront = hardwareMap.get(DcMotor.class, "leftFront");
-        rightFront = hardwareMap.get(DcMotor.class, "rightFront");
-        leftBack = hardwareMap.get(DcMotor.class, "leftBack");
-        rightBack = hardwareMap.get(DcMotor.class, "rightBack");
-
-        slideOne = hardwareMap.get(DcMotor.class, "slide1");
-        slideTwo = hardwareMap.get(DcMotor.class, "slide2");
+        leftFront = hardwareMap.get(DcMotor.class, "lf");
+        leftBack = hardwareMap.get(DcMotor.class, "lb");
+        rightFront = hardwareMap.get(DcMotor.class, "rf");
+        rightBack = hardwareMap.get(DcMotor.class, "rb");
+        slide = hardwareMap.get(DcMotor.class, "slide");
 
         leftFront.setDirection(DcMotorSimple.Direction.REVERSE);
         leftBack.setDirection(DcMotorSimple.Direction.REVERSE);
+        slide.setDirection(DcMotorSimple.Direction.FORWARD);
 
-        slideOne.setTargetPosition(slidePos);
-        slideTwo.setTargetPosition(slidePos);
+        slide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
+        slide.setTargetPosition(slidePos);
+        slide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        slide.setPower(1);
+
     }
 
     public void loop() {
@@ -48,18 +50,19 @@ public class slidePositionFinder extends OpMode {
         double bl = axial - lateral + yaw;
         double br = axial + lateral - yaw;
 
-        double max = Math.max(1.0, Math.max(Math.abs(fl),
-                Math.max(Math.abs(fr), Math.max(Math.abs(bl), Math.abs(br)))));
+        double max =
+                Math.max(1.0, Math.max(Math.abs(fl), Math.max(Math.abs(fr), Math.max(Math.abs(bl), Math.abs(br)))));
         leftFront.setPower(fl / max);
         rightFront.setPower(fr / max);
         leftBack.setPower(bl / max);
         rightBack.setPower(br / max);
 
-
         if (gamepad2.left_stick_y > 0.5) {
-            slidePos = slidePos + 1;
+            slidePos = slidePos + 10;
+            slide.setTargetPosition(slidePos);
         } else if (gamepad2.left_stick_y < -0.5) {
-            slidePos = slidePos + 1;
+            slidePos = slidePos - 10;
+            slide.setTargetPosition(slidePos);
         }
 
         telemetry.addData("Slide Position", slidePos);
