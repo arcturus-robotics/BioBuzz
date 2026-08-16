@@ -63,15 +63,36 @@ public class cheeseAuto extends LinearOpMode {
         slideOne.setTargetPosition(slidePos);
         slideTwo.setTargetPosition(-slidePos);
 
+        slideOne.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        slideTwo.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
         waitForStart();
 
         moveForward(forwardPower);
+        sleep(500);
 
-        sleep(500);
         turnRight(turnPower);
-        sleep(500);
+        sleep(490);
+
+        moveForward(-forwardPower);
+        sleep(300);
+
+
 
         stopDrive();
+
+        slide (2300);
+
+        sleep(5000);
+
+        door.setPosition(0.3);
+        sleep (2000);
+        door.setPosition(0);
+        sleep(500);
+        slide (1);
+        sleep(4000);
+
+
 
     }
 
@@ -95,5 +116,9 @@ public class cheeseAuto extends LinearOpMode {
         rightBack.setPower(0);
     }
 
+    private void slide (int pos) {
+        slideOne.setTargetPosition(pos);
+        slideTwo.setTargetPosition(-pos);
+    }
 
 }
