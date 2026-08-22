@@ -33,7 +33,7 @@ public class SimpleDriveTeleop extends LinearOpMode {
                 .setExecute(() -> {
                     double forward = -gamepad1.left_stick_y * speedMultiplier;
                     double strafe  =  gamepad1.left_stick_x * speedMultiplier;
-                    double turn    =  gamepad1.right_stick_x * speedMultiplier;
+                    double turn    =  -gamepad1.right_stick_x * speedMultiplier;
 
                     frontLeft.setPower(forward + strafe + turn);
                     frontRight.setPower(forward - strafe - turn);
@@ -78,7 +78,6 @@ public class SimpleDriveTeleop extends LinearOpMode {
     }
 }
 
-///
-//
+
 
  
