@@ -115,19 +115,23 @@ public class cheeseTeleop extends OpMode {
         } else if (gamepad2.left_bumper) {
             slidePos = minSlide;
         }
+
+        /*
         if (gamepad2.left_stick_y >.5) {
             slidePos = slidePos+1 ;
         }
         if (gamepad2.left_stick_y <-.5) {
             slidePos = slidePos-1 ;
         }
+
+        */
         slideOne.setTargetPosition(slidePos);
         slideTwo.setTargetPosition(-slidePos);
         if(gamepad2.cross){
             door.setPosition(0);
         }
         if(gamepad2.circle){
-            door.setPosition(0.5);
+            door.setPosition(0.3);
         }
         telemetry.addData("leftencoder",slideOne.getCurrentPosition());
         telemetry.addData("rightencoder",slideTwo.getCurrentPosition());
