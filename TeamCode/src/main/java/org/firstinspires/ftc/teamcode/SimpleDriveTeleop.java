@@ -12,8 +12,10 @@ import static com.pedropathing.ivy.Scheduler.schedule;
 
 @TeleOp(name = "Simple Drive (Ivy)")
 public class SimpleDriveTeleop extends LinearOpMode {
-    private DcMotor frontLeft, frontRight, backLeft, backRight;
+    private DcMotor frontLeft, frontRight, backLeft, backRight, intakeMotor;
     private double speedMultiplier = 1.0;
+    private int intake_power = 1;
+
 
 
     @Override
@@ -25,6 +27,8 @@ public class SimpleDriveTeleop extends LinearOpMode {
         frontRight = hardwareMap.get(DcMotor.class, "frontRight");
         backLeft = hardwareMap.get(DcMotor.class, "backLeft");
         backRight = hardwareMap.get(DcMotor.class, "backRight");
+
+        intakeMotor = hardwareMap.get(DcMotor.class, "intake");
 
         frontRight.setDirection(DcMotorSimple.Direction.REVERSE);
         backRight.setDirection(DcMotorSimple.Direction.REVERSE);
@@ -54,6 +58,25 @@ public class SimpleDriveTeleop extends LinearOpMode {
         Command turboMode = Command.build()
                 .setStart(() -> speedMultiplier = 1.5)
                 .setDone(() -> true);
+        Command intake = Command.build()
+                .setExecute(() -> {
+                    intakeMotor.setPower(intake_power);
+                })
+                .setDone(() -> true)
+                .setEnd(endCondition -> {
+                    intakeMotor.setPower(0);
+                })
+                .requiring(intakeMotor);
+        Command reverseIntake = Command.build()
+                .setExecute(() -> {
+                    intakeMotor.setPower(-intake_power);
+                })
+                .setDone(() -> true)
+                .setEnd(endCondition -> {
+                    intakeMotor.setPower(0);
+                })
+                .requiring(intakeMotor);
+
 
 
         waitForStart();
@@ -68,6 +91,14 @@ public class SimpleDriveTeleop extends LinearOpMode {
                 schedule(turboMode);
             } else {
                 speedMultiplier = 1.0;
+            }
+
+            if(gamepad2.a) {
+                schedule(intake);
+            } else if (gamepad2.y){
+                schedule(reverseIntake);
+            } else {
+                intakeMotor.setPower(0);
             }
 
             Scheduler.execute();
