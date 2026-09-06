@@ -25,7 +25,7 @@ public class BiobuzzDriveTeleop extends LinearOpMode {
 
     private static final int YELLOW_BALL_PIPELINE = 0;
 
-    // Latest limelight readings, updated every loop by the visionUpdate command
+
     private boolean ballDetected = false;
     private double tx = 0;
     private double ty = 0;
