@@ -4,27 +4,20 @@ import com.pedropathing.follower.Follower;
 import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.LLResultTypes;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorEx;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.pedropathing.ivy.Command;
-import com.pedropathing.ivy.Scheduler;
-import static com.pedropathing.ivy.Scheduler.schedule;
 
 import org.firstinspires.ftc.teamcode.robot.Robot;
 
 import java.util.List;
 public class ColorDetection {
     private Follower follower;
-    private Limelight3A limelight;
+    private final Limelight3A limelight;
     private static final int YELLOW_BALL_PIPELINE = 0;
     private boolean ballDetected = false;
     private double tx = 0;
     private double ty = 0;
     private double ta = 0;
-    private final Command colorDetection;
+    private final Command yellowBallDetection;
 
     public ColorDetection(Robot robot) {
 
@@ -32,7 +25,7 @@ public class ColorDetection {
         limelight.pipelineSwitch(YELLOW_BALL_PIPELINE);
         limelight.start();
 
-        colorDetection = Command.build()
+        yellowBallDetection = Command.build()
                 .setExecute(() -> {
                     LLResult result = limelight.getLatestResult();
 
@@ -70,6 +63,6 @@ public class ColorDetection {
         return ta;
     }
     public Command periodic() {
-        return colorDetection;
+        return yellowBallDetection;
     }
 }

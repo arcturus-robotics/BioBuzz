@@ -57,8 +57,5 @@ public class Intake {
 
         }
     }
-    public Command periodic() {
-        return intake;
-    }
 
 }

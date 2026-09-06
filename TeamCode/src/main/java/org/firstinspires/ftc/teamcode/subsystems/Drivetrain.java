@@ -5,14 +5,7 @@ import com.pedropathing.ivy.Command;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
-//import org.firstinspires.ftc.robotcore.external.Telemetry;
-import com.pedropathing.ivy.Scheduler;
-import static com.pedropathing.ivy.Scheduler.schedule;
-
-import java.util.List;
-
 import org.firstinspires.ftc.teamcode.robot.Robot;
-import com.qualcomm.robotcore.hardware.Gamepad;
 
 @Config
 
@@ -57,16 +50,6 @@ public class Drivetrain{
                     backRight.setPower(0);
                 })
                 .requiring(frontLeft, frontRight, backLeft, backRight);
-
-        Command slowMode = Command.build()
-                .setStart(() -> speedMultiplier = 0.4)
-                .setDone(() -> true);
-
-        Command turboMode = Command.build()
-                .setStart(() -> speedMultiplier = 1.5)
-                .setDone(() -> true);
-
-
     }
     public void setInput(double forward, double strafe, double turn) {
         forwardInput = forward;

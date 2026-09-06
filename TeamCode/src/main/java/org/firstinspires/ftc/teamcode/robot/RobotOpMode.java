@@ -10,19 +10,19 @@ public abstract class RobotOpMode extends OpMode {
 
     @Override
     public void init() {
-        Scheduler.reset();
         robot = new Robot(this);
-
-        schedule(
-                robot.drivetrain.periodic(),
-                robot.intake.periodic(),
-                robot.colorDetection.periodic()
-        );
+        Scheduler.reset();
+        schedule(robot.colorDetection.periodic());
     }
 
     @Override
     public void init_loop() {
         Scheduler.execute();
+    }
+
+    @Override
+    public void start() {
+        schedule(robot.drivetrain.periodic());
     }
 
     @Override
