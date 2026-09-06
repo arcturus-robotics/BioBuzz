@@ -14,7 +14,7 @@ import com.pedropathing.ivy.Scheduler;
 import java.util.List;
 
 import static com.pedropathing.ivy.Scheduler.schedule;
-
+// same as simple drive teleop but with color detection code
 @TeleOp(name = "BiobuzzDriveTeleop")
 public class BiobuzzDriveTeleop extends LinearOpMode {
     private DcMotor frontLeft, frontRight, backLeft, backRight, intakeMotor;
