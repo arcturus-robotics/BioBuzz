@@ -14,9 +14,8 @@ import com.pedropathing.ivy.Scheduler;
 import java.util.List;
 
 import static com.pedropathing.ivy.Scheduler.schedule;
-// same as simple drive teleop but with color detection code
-@TeleOp(name = "BiobuzzDriveTeleop")
-public class BiobuzzDriveTeleop extends LinearOpMode {
+@TeleOp(name = "TeleopWithYellowButton")
+public class YellowBallTeleop extends LinearOpMode {
     private DcMotor frontLeft, frontRight, backLeft, backRight, intakeMotor;
     private Follower follower;
     private Limelight3A limelight;
@@ -25,11 +24,18 @@ public class BiobuzzDriveTeleop extends LinearOpMode {
 
     private static final int YELLOW_BALL_PIPELINE = 0;
 
-
     private boolean ballDetected = false;
     private double tx = 0;
     private double ty = 0;
     private double ta = 0;
+
+    // ---- Auto-align-to-ball tuning ----
+    private static final double TURN_KP = 0.02;          // turn power per degree of tx error
+    private static final double APPROACH_SPEED = 0.5;    // forward power while approaching
+    private static final double TX_ALIGN_TOLERANCE = 2.5; // degrees - stop turning once aligned this well
+    private static final double CLOSE_ENOUGH_AREA = 6.0;  // ta % - stop driving forward once this close
+
+    private boolean ballAssistActive = false;
 
     @Override
     public void runOpMode() {
@@ -122,6 +128,37 @@ public class BiobuzzDriveTeleop extends LinearOpMode {
                 .setDone(() -> false)
                 .requiring(limelight);
 
+        // Drives toward the nearest detected yellow ball: turns to null out tx,
+        // drives forward while the ball still looks small (far away), and stops
+        // driving forward once ta says we're close. Shares the drivetrain
+        // requirement with `drive`, so scheduling this interrupts manual driving,
+        // and rescheduling `drive` hands control back to the sticks.
+        Command goToNearestBall = Command.build()
+                .setExecute(() -> {
+                    if (!ballDetected) {
+                        frontLeft.setPower(0);
+                        frontRight.setPower(0);
+                        backLeft.setPower(0);
+                        backRight.setPower(0);
+                        return;
+                    }
+
+                    double turn = Math.abs(tx) > TX_ALIGN_TOLERANCE ? -tx * TURN_KP : 0;
+                    double forward = ta < CLOSE_ENOUGH_AREA ? APPROACH_SPEED : 0;
+
+                    frontLeft.setPower(forward + turn);
+                    frontRight.setPower(forward - turn);
+                    backLeft.setPower(forward + turn);
+                    backRight.setPower(forward - turn);
+                })
+                .setDone(() -> false)
+                .setEnd(endCondition -> {
+                    frontLeft.setPower(0);
+                    frontRight.setPower(0);
+                    backLeft.setPower(0);
+                    backRight.setPower(0);
+                })
+                .requiring(frontLeft, frontRight, backLeft, backRight);
 
 
         waitForStart();
@@ -147,6 +184,22 @@ public class BiobuzzDriveTeleop extends LinearOpMode {
                 intakeMotor.setPower(0);
             }
 
+            // Hold gamepad1.dpad_up: auto-drive to the nearest yellow ball.
+            // Release, or get close enough to it, and manual driving resumes.
+            if (gamepad1.dpad_up) {
+                if (!ballAssistActive) {
+                    schedule(goToNearestBall);
+                    ballAssistActive = true;
+                }
+                if (ballDetected && ta >= CLOSE_ENOUGH_AREA) {
+                    schedule(drive);
+                    ballAssistActive = false;
+                }
+            } else if (ballAssistActive) {
+                schedule(drive);
+                ballAssistActive = false;
+            }
+
             Scheduler.execute();
             telemetry.addLine("===== YELLOW BALL =====");
             if (ballDetected) {
@@ -158,6 +211,7 @@ public class BiobuzzDriveTeleop extends LinearOpMode {
                 telemetry.addData("Ball Detected", "NO");
             }
 
+            telemetry.addData("Ball Assist Active", ballAssistActive);
             telemetry.addData("Speed Multiplier", speedMultiplier);
             telemetry.update();
         }
