@@ -12,7 +12,7 @@ public class Robot {
     public final HardwareMap hardwareMap;
     public final Telemetry telemetry;
     public final Drivetrain drivetrain;
-    public final Intake intake;
+    public final IntakeWithSweeper intakewithsweeper;
     public final ColorDetection colorDetection;
     public Robot(OpMode opMode) {
         hardwareMap = opMode.hardwareMap;
@@ -23,7 +23,7 @@ public class Robot {
         );
 
         drivetrain = new Drivetrain(this);
-        intake = new Intake(this);
+        intakewithsweeper = new IntakeWithSweeper(this);
         colorDetection = new ColorDetection(this);
     }
 }

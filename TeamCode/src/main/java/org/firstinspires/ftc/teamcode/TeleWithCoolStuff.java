@@ -17,14 +17,14 @@ public class TeleWithCoolStuff extends RobotOpMode {
         robot.drivetrain.setInput(forward, strafe, turn);
 
         robot.drivetrain.setSpeedMode(gamepad1.left_bumper, gamepad1.right_bumper);
-        robot.intake.setIntakeMode(gamepad2.a, gamepad2.y);
+        robot.intakewithsweeper.setIntakeMode(gamepad2.a, gamepad2.y);
 
         robot.telemetry.addLine("===== YELLOW BALL =====");
             if (robot.colorDetection.isBallDetected()) {
                 robot.telemetry.addData("Ball Detected", "YES");
                 robot.telemetry.addData("TX (left/right)", "%.2f°", robot.colorDetection.getTx());
                 robot.telemetry.addData("TY (up/down)", "%.2f°", robot.colorDetection.getTy());
-                robot.telemetry.addData("TA (size)", "%.2f%%", robot.colorDetection.getTa());
+                robot.telemetry.addData("TA (size)","%.2f%%", robot.colorDetection.getTa());
             } else {
                 robot.telemetry.addData("Ball Detected", "NO");
             }
