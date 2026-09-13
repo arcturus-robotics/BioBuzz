@@ -23,6 +23,7 @@ public abstract class RobotOpMode extends OpMode {
     @Override
     public void start() {
         schedule(robot.drivetrain.periodic());
+
     }
 
     @Override

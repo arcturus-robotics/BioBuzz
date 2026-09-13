@@ -6,6 +6,7 @@ import com.qualcomm.hardware.limelightvision.LLResultTypes;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.pedropathing.ivy.Command;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.robot.Robot;
 
 import java.util.List;
@@ -64,5 +65,16 @@ public class ColorDetection {
     }
     public Command periodic() {
         return yellowBallDetection;
+    }
+
+    public void logTelemetry(Telemetry telemetry) {
+        telemetry.addLine("===== YELLOW BALL =====");
+        telemetry.addData("Ball Detected", ballDetected ? "YES" : "NO");
+
+        if (ballDetected) {
+            telemetry.addData("TX (left/right)", "%.2f°", tx);
+            telemetry.addData("TY (up/down)", "%.2f°", ty);
+            telemetry.addData("TA (size)", "%.2f%%", ta);
+        }
     }
 }
