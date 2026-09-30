@@ -19,6 +19,7 @@ public class TeleWithCoolStuff extends RobotOpMode {
         robot.drivetrain.setSpeedMode(gamepad1.left_bumper, gamepad1.right_bumper);
         robot.drivetrain.setBrakeRequested(gamepad1.right_trigger_pressed);
         robot.intakewithsweeper.setIntakeMode(gamepad2.a, gamepad2.y);
+        robot.flywheel.setIntakeMode(gamepad2.left_stick_y>0.5);
 
         robot.colorDetection.logTelemetry(robot.telemetry);
         robot.drivetrain.logTelemetry(robot.telemetry);

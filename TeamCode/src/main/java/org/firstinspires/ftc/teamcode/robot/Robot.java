@@ -14,6 +14,7 @@ public class Robot {
     public final Drivetrain drivetrain;
     public final IntakeWithSweeper intakewithsweeper;
     public final ColorDetection colorDetection;
+    public final Flywheel flywheel;
     public Robot(OpMode opMode) {
         hardwareMap = opMode.hardwareMap;
         telemetry = new MultipleTelemetry(
@@ -25,5 +26,6 @@ public class Robot {
         drivetrain = new Drivetrain(this);
         intakewithsweeper = new IntakeWithSweeper(this);
         colorDetection = new ColorDetection(this);
+        flywheel = new Flywheel(this);
     }
 }

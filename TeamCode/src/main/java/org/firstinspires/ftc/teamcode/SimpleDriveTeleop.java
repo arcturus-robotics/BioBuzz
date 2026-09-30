@@ -3,17 +3,20 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.pedropathing.ivy.Command;
 import com.pedropathing.ivy.Scheduler;
 
 import static com.pedropathing.ivy.Scheduler.schedule;
 
-@TeleOp(name = "Simple Drive (Ivy)")
+@TeleOp(name = "Simple Drive (Ivy)", group = "Teleop")
 public class SimpleDriveTeleop extends LinearOpMode {
     private DcMotor frontLeft, frontRight, backLeft, backRight, intakeMotor;
+    private DcMotorEx leftFlywheel, rightFlywheel;
     private double speedMultiplier = 1.0;
     private int intake_power = 1; //intake power
+    private final double launch_velocity = 1000; //tune this later
 
     @Override
     public void runOpMode() {
@@ -26,6 +29,8 @@ public class SimpleDriveTeleop extends LinearOpMode {
         backRight = hardwareMap.get(DcMotor.class, "backRight");
 
         intakeMotor = hardwareMap.get(DcMotor.class, "intake");
+        leftFlywheel = hardwareMap.get(DcMotorEx.class, "leftLaunch");
+        rightFlywheel = hardwareMap.get(DcMotorEx.class, "rightLaunch");
 
         frontRight.setDirection(DcMotorSimple.Direction.REVERSE);
         backRight.setDirection(DcMotorSimple.Direction.REVERSE);
@@ -73,6 +78,17 @@ public class SimpleDriveTeleop extends LinearOpMode {
                     intakeMotor.setPower(0);
                 })
                 .requiring(intakeMotor);
+        Command shoot = Command.build()
+                .setExecute(() -> {
+                    leftFlywheel.setVelocity(launch_velocity);
+                    rightFlywheel.setVelocity(launch_velocity);
+                })
+                .setDone(() -> false)
+                .setEnd(endCondition -> {
+                    leftFlywheel.setVelocity(0);
+                    rightFlywheel.setVelocity(0);
+                })
+                .requiring(leftFlywheel, rightFlywheel);
 
         waitForStart();
 
@@ -94,6 +110,13 @@ public class SimpleDriveTeleop extends LinearOpMode {
                 schedule(reverseIntake);
             } else {
                 intakeMotor.setPower(0);
+            }
+
+            if (gamepad2.left_stick_y > 0.5) {
+                schedule(shoot);
+            } else {
+                leftFlywheel.setVelocity(0);
+                rightFlywheel.setVelocity(0);
             }
 
             Scheduler.execute();
