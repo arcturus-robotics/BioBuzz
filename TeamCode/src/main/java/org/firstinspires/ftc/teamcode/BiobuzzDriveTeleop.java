@@ -1,6 +1,7 @@
+// SimpleDriveTeleop with color detection code
+
 package org.firstinspires.ftc.teamcode;
 
-import com.pedropathing.follower.Follower;
 import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.LLResultTypes;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
@@ -10,22 +11,16 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.pedropathing.ivy.Command;
 import com.pedropathing.ivy.Scheduler;
-
 import java.util.List;
-
 import static com.pedropathing.ivy.Scheduler.schedule;
-// same as simple drive teleop but with color detection code
+
 @TeleOp(name = "BiobuzzDriveTeleop")
 public class BiobuzzDriveTeleop extends LinearOpMode {
     private DcMotor frontLeft, frontRight, backLeft, backRight, intakeMotor;
-    private Follower follower;
     private Limelight3A limelight;
     private double speedMultiplier = 1.0;
-    private int intake_power = 1; //intake power
-
+    private int intake_power = 1;
     private static final int YELLOW_BALL_PIPELINE = 0;
-
-
     private boolean ballDetected = false;
     private double tx = 0;
     private double ty = 0;
@@ -122,8 +117,6 @@ public class BiobuzzDriveTeleop extends LinearOpMode {
                 .setDone(() -> false)
                 .requiring(limelight);
 
-
-
         waitForStart();
 
         schedule(drive);
@@ -161,7 +154,6 @@ public class BiobuzzDriveTeleop extends LinearOpMode {
             telemetry.addData("Speed Multiplier", speedMultiplier);
             telemetry.update();
         }
-
 
         limelight.stop();
     }

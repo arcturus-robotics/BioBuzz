@@ -15,8 +15,6 @@ public class SimpleDriveTeleop extends LinearOpMode {
     private double speedMultiplier = 1.0;
     private int intake_power = 1; //intake power
 
-
-
     @Override
     public void runOpMode() {
 
@@ -76,14 +74,12 @@ public class SimpleDriveTeleop extends LinearOpMode {
                 })
                 .requiring(intakeMotor);
 
-
-
         waitForStart();
 
         schedule(drive);
 
         while (opModeIsActive()) {
-//speed & turbo mode
+
             if (gamepad1.left_bumper) {
                 schedule(slowMode);
             } else if (gamepad1.right_bumper) {
