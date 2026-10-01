@@ -1,31 +1,29 @@
+// SimpleDriveTeleop with color detection code
+
 package org.firstinspires.ftc.teamcode;
 
-import com.pedropathing.follower.Follower;
 import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.LLResultTypes;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.pedropathing.ivy.Command;
 import com.pedropathing.ivy.Scheduler;
-
 import java.util.List;
-
 import static com.pedropathing.ivy.Scheduler.schedule;
-// same as simple drive teleop but with color detection code
-@TeleOp(name = "BiobuzzDriveTeleop")
+
+@TeleOp(name = "BiobuzzDriveTeleop", group = "Teleop")
 public class BiobuzzDriveTeleop extends LinearOpMode {
     private DcMotor frontLeft, frontRight, backLeft, backRight, intakeMotor;
-    private Follower follower;
+    private DcMotorEx leftFlywheel, rightFlywheel;
     private Limelight3A limelight;
     private double speedMultiplier = 1.0;
-    private int intake_power = 1; //intake power
-
+    private int intake_power = 1;
+    private final double launch_velocity = 1000; //tune this later
     private static final int YELLOW_BALL_PIPELINE = 0;
-
-
     private boolean ballDetected = false;
     private double tx = 0;
     private double ty = 0;
@@ -42,6 +40,8 @@ public class BiobuzzDriveTeleop extends LinearOpMode {
         backRight = hardwareMap.get(DcMotor.class, "backRight");
 
         intakeMotor = hardwareMap.get(DcMotor.class, "intake");
+        leftFlywheel = hardwareMap.get(DcMotorEx.class, "leftLaunch");
+        rightFlywheel = hardwareMap.get(DcMotorEx.class, "rightLaunch");
 
         frontRight.setDirection(DcMotorSimple.Direction.REVERSE);
         backRight.setDirection(DcMotorSimple.Direction.REVERSE);
@@ -122,7 +122,17 @@ public class BiobuzzDriveTeleop extends LinearOpMode {
                 .setDone(() -> false)
                 .requiring(limelight);
 
-
+        Command shoot = Command.build()
+                .setExecute(() -> {
+                    leftFlywheel.setVelocity(launch_velocity);
+                    rightFlywheel.setVelocity(launch_velocity);
+                })
+                .setDone(() -> false)
+                .setEnd(endCondition -> {
+                    leftFlywheel.setVelocity(0);
+                    rightFlywheel.setVelocity(0);
+                })
+                .requiring(leftFlywheel, rightFlywheel);
 
         waitForStart();
 
@@ -147,6 +157,13 @@ public class BiobuzzDriveTeleop extends LinearOpMode {
                 intakeMotor.setPower(0);
             }
 
+            if (gamepad2.left_stick_y > 0.5) {
+                schedule(shoot);
+            } else {
+                leftFlywheel.setVelocity(0);
+                rightFlywheel.setVelocity(0);
+            }
+
             Scheduler.execute();
             telemetry.addLine("===== YELLOW BALL =====");
             if (ballDetected) {
@@ -161,7 +178,6 @@ public class BiobuzzDriveTeleop extends LinearOpMode {
             telemetry.addData("Speed Multiplier", speedMultiplier);
             telemetry.update();
         }
-
 
         limelight.stop();
     }

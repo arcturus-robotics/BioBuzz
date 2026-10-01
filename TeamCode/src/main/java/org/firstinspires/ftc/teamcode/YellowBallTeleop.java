@@ -7,6 +7,7 @@ import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.pedropathing.ivy.Command;
 import com.pedropathing.ivy.Scheduler;
@@ -14,16 +15,17 @@ import com.pedropathing.ivy.Scheduler;
 import java.util.List;
 
 import static com.pedropathing.ivy.Scheduler.schedule;
-@TeleOp(name = "TeleopWithYellowButton")
+@TeleOp(name = "TeleopWithYellowButton", group = "Teleop")
 public class YellowBallTeleop extends LinearOpMode {
     private DcMotor frontLeft, frontRight, backLeft, backRight, intakeMotor;
+    private DcMotorEx leftFlywheel, rightFlywheel;
     private Follower follower;
     private Limelight3A limelight;
     private double speedMultiplier = 1.0;
     private int intake_power = 1; //intake power
+    private final double launch_velocity = 1000; //tune this later
 
     private static final int YELLOW_BALL_PIPELINE = 0;
-
     private boolean ballDetected = false;
     private double tx = 0;
     private double ty = 0;
@@ -48,6 +50,8 @@ public class YellowBallTeleop extends LinearOpMode {
         backRight = hardwareMap.get(DcMotor.class, "backRight");
 
         intakeMotor = hardwareMap.get(DcMotor.class, "intake");
+        leftFlywheel = hardwareMap.get(DcMotorEx.class, "leftLaunch");
+        rightFlywheel = hardwareMap.get(DcMotorEx.class, "rightLaunch");
 
         frontRight.setDirection(DcMotorSimple.Direction.REVERSE);
         backRight.setDirection(DcMotorSimple.Direction.REVERSE);
@@ -127,6 +131,8 @@ public class YellowBallTeleop extends LinearOpMode {
                 })
                 .setDone(() -> false)
                 .requiring(limelight);
+
+
 
         // Drives toward the nearest detected yellow ball: turns to null out tx,
         // drives forward while the ball still looks small (far away), and stops
