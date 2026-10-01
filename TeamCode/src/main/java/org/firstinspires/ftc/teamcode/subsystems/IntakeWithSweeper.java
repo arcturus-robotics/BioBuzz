@@ -62,6 +62,7 @@ public class IntakeWithSweeper {
                 .requiring(intakeMotor, sweeperLeft, sweeperRight);
     }
 
+
     public void setIntakeMode (boolean intaking, boolean outtaking) {
         if (intaking) {
             schedule(intake);
