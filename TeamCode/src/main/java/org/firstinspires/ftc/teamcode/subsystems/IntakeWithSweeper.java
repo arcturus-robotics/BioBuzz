@@ -33,7 +33,6 @@ public class IntakeWithSweeper {
 
         intake = Command.build()
                 .setExecute(() -> {
-                    //normal intaking + sweepers
                     intakeMotor.setPower(intake_power);
                     sweeperLeft.setPower(-intake_servo_power);
                     sweeperRight.setPower(-intake_servo_power);
@@ -48,7 +47,6 @@ public class IntakeWithSweeper {
 
         outtake = Command.build()
                 .setExecute(() -> {
-                    //reverse intake + sweeper
                     intakeMotor.setPower(-intake_power);
                     sweeperLeft.setPower(intake_servo_power);
                     sweeperRight.setPower(intake_servo_power);

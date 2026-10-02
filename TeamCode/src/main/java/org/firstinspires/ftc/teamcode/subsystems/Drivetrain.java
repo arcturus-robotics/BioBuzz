@@ -2,11 +2,16 @@ package org.firstinspires.ftc.teamcode.subsystems;
 
 import com.acmerobotics.dashboard.config.Config;
 import com.pedropathing.ivy.Command;
+import com.qualcomm.hardware.limelightvision.LLResult;
+import com.qualcomm.hardware.limelightvision.LLResultTypes;
+import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import org.firstinspires.ftc.teamcode.robot.Robot;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+
+import java.util.List;
 
 @Config
 public class Drivetrain {
@@ -21,23 +26,51 @@ public class Drivetrain {
     private double strafeInput = 0;
     private double turnInput = 0;
 
-    // ---- Position hold state ----
     private int targetFL, targetFR, targetBL, targetBR;
     private boolean holdingPosition = false;
-    private boolean brakeRequested = false; // set by right bumper
+    private boolean brakeRequested = false;
 
     private static final double STICK_DEADZONE = 0.05;
 
-    // Tune these on FTC Dashboard
     public static double RETURN_KP = 0.025;
     public static double RETURN_MAX_POWER = 0.5;
     public static int MIN_ERROR_TO_CORRECT = 30;
+
+    private final Limelight3A limelight;
+
+    public static int[] TARGET_TAG_IDS = {31, 32, 35, 36};
+
+    public static double TARGET_OFFSET_DEGREES = 0;
+
+    public static double TURN_GAIN = 0.02;
+    public static double MAX_AUTO_TURN = 0.4;
+    public static double MIN_TURN_POWER = 0.08;
+    public static double ALIGNMENT_TOLERANCE = 1.5;
+    public static double ALIGNED_SETTLE_MS = 150;
+    public static double MAX_STALENESS_MS = 100;
+    public static double TURN_SIGN = 1.0;
+    public static int LIMELIGHT_PIPELINE = 0;
+
+    private boolean alignRequested = false;
+    private boolean alignActive = false;
+    private boolean targetVisible = false;
+    private boolean aligned = false;
+    private long alignedSinceMs = 0;
+    private int detectedTagId = -1;
+    private double tagTx = 0;
+    private double alignError = 0;
+    private double autoTurnPower = 0;
+
 
     public Drivetrain(Robot robot) {
         frontLeft = robot.hardwareMap.get(DcMotorEx.class, "frontLeft");
         frontRight = robot.hardwareMap.get(DcMotorEx.class, "frontRight");
         backLeft = robot.hardwareMap.get(DcMotorEx.class, "backLeft");
         backRight = robot.hardwareMap.get(DcMotorEx.class, "backRight");
+
+        limelight = robot.hardwareMap.get(Limelight3A.class, "Limelight");
+        limelight.pipelineSwitch(LIMELIGHT_PIPELINE);
+        limelight.start();
 
         frontRight.setDirection(DcMotorSimple.Direction.REVERSE);
         backRight.setDirection(DcMotorSimple.Direction.REVERSE);
@@ -59,11 +92,18 @@ public class Drivetrain {
                                     Math.abs(strafeInput)  > STICK_DEADZONE ||
                                     Math.abs(turnInput)    > STICK_DEADZONE;
 
-                    // Right bumper forces a hold even if the driver bumps the stick;
-                    // it takes priority over normal driving input.
+                    alignActive = alignRequested && !driverControlling && !brakeRequested;
+
+
                     boolean shouldHold = brakeRequested || !driverControlling;
 
-                    if (!shouldHold) {
+                    if (alignActive) {
+
+                        holdingPosition = false;
+                        runAutoAlign();
+
+                    } else if (!shouldHold) {
+                        resetAlignState();
                         holdingPosition = false;
 
                         double forward = forwardInput * speedMultiplier;
@@ -76,7 +116,7 @@ public class Drivetrain {
                         backRight.setPower(forward + strafe - turn);
 
                     } else {
-                        // Capture the lock target ONCE, right when holding starts.
+                        resetAlignState();
                         if (!holdingPosition) {
                             targetFL = frontLeft.getCurrentPosition();
                             targetFR = frontRight.getCurrentPosition();
@@ -106,6 +146,90 @@ public class Drivetrain {
                 .requiring(frontLeft, frontRight, backLeft, backRight);
     }
 
+
+    private void runAutoAlign() {
+        targetVisible = false;
+        detectedTagId = -1;
+        autoTurnPower = 0;
+
+        LLResult result = limelight.getLatestResult();
+        if (result != null && result.isValid() && result.getStaleness() < MAX_STALENESS_MS) {
+            List<LLResultTypes.FiducialResult> tags = result.getFiducialResults();
+
+
+            LLResultTypes.FiducialResult best = null;
+            for (LLResultTypes.FiducialResult fr : tags) {
+                if (!isTargetTag((int) fr.getFiducialId())) continue;
+                if (best == null || Math.abs(fr.getTargetXDegrees()) < Math.abs(best.getTargetXDegrees())) {
+                    best = fr;
+                }
+            }
+
+            if (best != null) {
+                targetVisible = true;
+                detectedTagId = (int) best.getFiducialId();
+                tagTx = best.getTargetXDegrees();
+                alignError = tagTx - TARGET_OFFSET_DEGREES;
+
+                if (Math.abs(alignError) < ALIGNMENT_TOLERANCE) {
+                    autoTurnPower = 0;
+                } else {
+                    double turn = TURN_SIGN * alignError * TURN_GAIN;
+                    if (turn > 0 && turn < MIN_TURN_POWER) turn = MIN_TURN_POWER;
+                    else if (turn < 0 && turn > -MIN_TURN_POWER) turn = -MIN_TURN_POWER;
+                    autoTurnPower = clamp(turn, -MAX_AUTO_TURN, MAX_AUTO_TURN);
+                }
+            }
+        }
+
+
+        boolean insideTolerance = targetVisible && Math.abs(alignError) < ALIGNMENT_TOLERANCE;
+        if (insideTolerance) {
+            if (alignedSinceMs == 0) alignedSinceMs = System.currentTimeMillis();
+            aligned = (System.currentTimeMillis() - alignedSinceMs) >= ALIGNED_SETTLE_MS;
+        } else {
+            alignedSinceMs = 0;
+            aligned = false;
+        }
+
+        frontLeft.setPower(autoTurnPower);
+        backLeft.setPower(autoTurnPower);
+        frontRight.setPower(-autoTurnPower);
+        backRight.setPower(-autoTurnPower);
+    }
+
+    private boolean isTargetTag(int id) {
+        for (int t : TARGET_TAG_IDS) {
+            if (t == id) return true;
+        }
+        return false;
+    }
+
+    private void resetAlignState() {
+        targetVisible = false;
+        aligned = false;
+        alignedSinceMs = 0;
+        autoTurnPower = 0;
+    }
+
+    public void setAlignRequested(boolean pressed) {
+        alignRequested = pressed;
+    }
+
+    public boolean isReadyToShoot() {
+        return alignActive && aligned;
+    }
+
+    public boolean isAligning() {
+        return alignActive;
+    }
+
+
+    public void stopLimelight() {
+        limelight.stop();
+    }
+
+
     private double calculateReturnPower(int error) {
         if (Math.abs(error) < MIN_ERROR_TO_CORRECT) {
             return 0;
@@ -124,7 +248,6 @@ public class Drivetrain {
         turnInput = turn;
     }
 
-    /** Call this every loop from your OpMode with gamepad1.right_bumper. */
     public void setBrakeRequested(boolean pressed) {
         brakeRequested = pressed;
     }
@@ -146,6 +269,7 @@ public class Drivetrain {
     public Command periodic() {
         return drive;
     }
+
     public void logTelemetry(Telemetry telemetry) {
         boolean driverControlling =
                 Math.abs(forwardInput) > STICK_DEADZONE ||
@@ -153,8 +277,18 @@ public class Drivetrain {
                         Math.abs(turnInput)    > STICK_DEADZONE;
         boolean shouldHold = brakeRequested || !driverControlling;
 
+        telemetry.addLine("===== LIMELIGHT ALIGN =====");
+        telemetry.addData("Align Requested", alignRequested);
+        telemetry.addData("Align Active", alignActive);
+        telemetry.addData("Tag Visible", targetVisible);
+        telemetry.addData("Tag ID", detectedTagId);
+        telemetry.addData("Tag tx (deg)", "%.2f", tagTx);
+        telemetry.addData("Error (deg)", "%.2f", alignError);
+        telemetry.addData("Turn Power", "%.2f", autoTurnPower);
+        telemetry.addData("Ready To Shoot", isReadyToShoot());
+
         telemetry.addLine("===== BRAKE =====");
-        telemetry.addData("Mode", shouldHold ? "HOLDING" : "DRIVING");
+        telemetry.addData("Mode", alignActive ? "ALIGNING" : (shouldHold ? "HOLDING" : "DRIVING"));
         telemetry.addData("Brake Requested", brakeRequested);
         telemetry.addData("Holding Position Flag", holdingPosition);
 
@@ -172,13 +306,11 @@ public class Drivetrain {
         telemetry.addData("BR pos/target/err", "%d / %d / %d",
                 backRight.getCurrentPosition(), targetBR, errorBR);
 
-        if (shouldHold) {
+        if (shouldHold && !alignActive) {
             telemetry.addData("FL return power", "%.2f", calculateReturnPower(errorFL));
             telemetry.addData("FR return power", "%.2f", calculateReturnPower(errorFR));
             telemetry.addData("BL return power", "%.2f", calculateReturnPower(errorBL));
             telemetry.addData("BR return power", "%.2f", calculateReturnPower(errorBR));
         }
     }
-
-
 }

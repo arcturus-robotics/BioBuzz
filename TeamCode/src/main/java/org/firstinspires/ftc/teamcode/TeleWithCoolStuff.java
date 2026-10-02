@@ -16,11 +16,20 @@ public class TeleWithCoolStuff extends RobotOpMode {
         double turn    = -gamepad1.right_stick_x;
         robot.drivetrain.setInput(forward, strafe, turn);
 
-        robot.drivetrain.setSpeedMode(gamepad1.left_bumper, gamepad1.right_bumper);
-        robot.drivetrain.setBrakeRequested(gamepad1.right_trigger_pressed);
-        robot.intakewithsweeper.setIntakeMode(gamepad2.a, gamepad2.y);
-        robot.flywheel.setIntakeMode(gamepad2.left_stick_y>0.5);
+        robot.drivetrain.setSpeedMode(gamepad1.left_trigger > 0.5, gamepad1.right_bumper);
+        robot.drivetrain.setBrakeRequested(gamepad1.right_trigger > 0.5);
+        robot.drivetrain.setAlignRequested(gamepad1.left_bumper);
 
+        boolean autoShoot = gamepad1.left_bumper
+                && robot.drivetrain.isReadyToShoot()
+                && robot.flywheel.isAtSpeed();
+
+        robot.setCombinedIntakeMode(
+                gamepad2.dpad_up, gamepad2.dpad_down,
+                gamepad2.a || autoShoot, gamepad2.b
+        );
+
+        robot.flywheel.setIntakeMode(gamepad2.y);
         robot.colorDetection.logTelemetry(robot.telemetry);
         robot.drivetrain.logTelemetry(robot.telemetry);
 

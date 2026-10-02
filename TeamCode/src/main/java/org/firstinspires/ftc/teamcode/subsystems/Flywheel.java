@@ -2,38 +2,32 @@ package org.firstinspires.ftc.teamcode.subsystems;
 
 import com.acmerobotics.dashboard.config.Config;
 import com.pedropathing.ivy.Command;
-import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorEx;
-//import org.firstinspires.ftc.robotcore.external.Telemetry;
 import com.pedropathing.ivy.Scheduler;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import static com.pedropathing.ivy.Scheduler.schedule;
 import org.firstinspires.ftc.teamcode.robot.Robot;
-import java.util.List;
 
 @Config
 
 public class Flywheel {
-    private final DcMotorEx leftFlywheel;
-    private final DcMotorEx rightFlywheel;
-    private final double launch_velocity = 1000; //tune this later
+    private final DcMotorEx flywheel;
+    public static double launch_velocity = 1000;
+    public static double SPEED_TOLERANCE = 50;
     private final Command shoot;
 
     public Flywheel(Robot robot) {
 
-        leftFlywheel = robot.hardwareMap.get(DcMotorEx.class, "leftLaunch");
-        rightFlywheel = robot.hardwareMap.get(DcMotorEx.class, "rightLaunch");
+        flywheel = robot.hardwareMap.get(DcMotorEx.class, "leftLaunch");
 
         shoot = Command.build()
                 .setExecute(() -> {
-                    leftFlywheel.setVelocity(launch_velocity);
-                    rightFlywheel.setVelocity(-launch_velocity);
+                    flywheel.setVelocity(launch_velocity);
                 })
                 .setDone(() -> false)
                 .setEnd(endCondition -> {
-                    leftFlywheel.setVelocity(0);
-                    rightFlywheel.setVelocity(0);
+                    flywheel.setVelocity(0);
                 })
-                .requiring(leftFlywheel, rightFlywheel);
+                .requiring(flywheel);
     }
 
     public void setIntakeMode (boolean shooting) {
@@ -41,11 +35,12 @@ public class Flywheel {
             schedule(shoot);
         } else {
             Scheduler.cancel(shoot);
-            leftFlywheel.setVelocity(0);
-            rightFlywheel.setVelocity(0);
-
-
+            flywheel.setVelocity(0);
         }
+    }
+
+    public boolean isAtSpeed() {
+        return Math.abs(flywheel.getVelocity() - launch_velocity) < SPEED_TOLERANCE;
     }
 
 }
