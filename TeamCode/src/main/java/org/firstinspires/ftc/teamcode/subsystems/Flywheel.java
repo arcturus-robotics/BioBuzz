@@ -19,6 +19,7 @@ public class Flywheel {
 
         flywheel = robot.hardwareMap.get(DcMotorEx.class, "leftLaunch");
 
+
         shoot = Command.build()
                 .setExecute(() -> {
                     flywheel.setVelocity(launch_velocity);
@@ -39,6 +40,7 @@ public class Flywheel {
         }
     }
 
+    // true when both motors are within tolerance of the target speed
     public boolean isAtSpeed() {
         return Math.abs(flywheel.getVelocity() - launch_velocity) < SPEED_TOLERANCE;
     }

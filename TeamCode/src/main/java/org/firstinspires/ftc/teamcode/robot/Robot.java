@@ -16,6 +16,7 @@ public class Robot {
     public final ColorDetection colorDetection;
     public final Transfer transfer;
     public final Flywheel flywheel;
+    public final Stopper stopper;
 
     public Robot(OpMode opMode) {
         hardwareMap = opMode.hardwareMap;
@@ -30,8 +31,8 @@ public class Robot {
         colorDetection = new ColorDetection(this);
         transfer = new Transfer(this);
         flywheel = new Flywheel(this);
+        stopper = new Stopper(this);
     }
-
 
     public void setCombinedIntakeMode(boolean intaking, boolean outtaking,
                                       boolean combinedIn, boolean combinedOut) {
