@@ -8,16 +8,15 @@ import org.firstinspires.ftc.teamcode.robot.Robot;
 public class Stopper {
     private final Servo stopper;
 
-
     public static double STOPPER_CLOSED = 0.0;
     public static double STOPPER_OPEN = 0.9;
 
     public Stopper(Robot robot) {
-        stopper = robot.hardwareMap.get(Servo.class, "stopper");
+        stopper = robot.hardwareMap.get(Servo.class, "blocker");
         stopper.setPosition(STOPPER_CLOSED);
     }
 
-
+    /** Hold = open, release = closed */
     public void setOpen(boolean open) {
         stopper.setPosition(open ? STOPPER_OPEN : STOPPER_CLOSED);
     }

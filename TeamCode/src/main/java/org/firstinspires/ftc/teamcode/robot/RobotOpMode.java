@@ -12,7 +12,6 @@ public abstract class RobotOpMode extends OpMode {
     public void init() {
         robot = new Robot(this);
         Scheduler.reset();
-        schedule(robot.colorDetection.periodic());
     }
 
     @Override

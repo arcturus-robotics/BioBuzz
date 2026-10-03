@@ -14,7 +14,7 @@ import org.firstinspires.ftc.teamcode.robot.Robot;
 
 public class Transfer {
     private final DcMotor transferMotor;
-    private final double transfer_power = 1.0;
+   public static double transfer_power = -1.0;
 
     private final Command transferIn;
     private final Command transferOut;

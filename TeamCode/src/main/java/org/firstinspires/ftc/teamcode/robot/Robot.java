@@ -12,10 +12,9 @@ public class Robot {
     public final HardwareMap hardwareMap;
     public final Telemetry telemetry;
     public final Drivetrain drivetrain;
-    public final IntakeWithSweeper intakewithsweeper;
-    public final ColorDetection colorDetection;
-    public final Transfer transfer;
-    public final Flywheel flywheel;
+    public final Intake intake;
+    public final Transfer transfer;        // NEW
+    public final Outtake outtake;
     public final Stopper stopper;
 
     public Robot(OpMode opMode) {
@@ -27,24 +26,9 @@ public class Robot {
         );
 
         drivetrain = new Drivetrain(this);
-        intakewithsweeper = new IntakeWithSweeper(this);
-        colorDetection = new ColorDetection(this);
-        transfer = new Transfer(this);
-        flywheel = new Flywheel(this);
+        intake = new Intake(this);
+        transfer = new Transfer(this);     // NEW
+        outtake = new Outtake(this);
         stopper = new Stopper(this);
-    }
-
-    public void setCombinedIntakeMode(boolean intaking, boolean outtaking,
-                                      boolean combinedIn, boolean combinedOut) {
-        if (combinedIn) {
-            intakewithsweeper.setIntakeMode(true, false);
-            transfer.setTransferMode(true, false);
-        } else if (combinedOut) {
-            intakewithsweeper.setIntakeMode(false, true);
-            transfer.setTransferMode(false, true);
-        } else {
-            intakewithsweeper.setIntakeMode(intaking, outtaking);
-            transfer.setTransferMode(false, false);
-        }
     }
 }
