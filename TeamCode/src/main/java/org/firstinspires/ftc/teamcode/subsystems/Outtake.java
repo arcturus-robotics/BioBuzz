@@ -6,6 +6,7 @@ import com.acmerobotics.dashboard.config.Config;
 import com.pedropathing.ivy.Command;
 import com.pedropathing.ivy.Scheduler;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
 import org.firstinspires.ftc.teamcode.robot.Robot;
 
@@ -21,6 +22,7 @@ public class Outtake {
     public Outtake(Robot robot) {
 
         shooterMotor = robot.hardwareMap.get(DcMotorEx.class, "shooter");
+        shooterMotor.setDirection(DcMotorSimple.Direction.REVERSE);
 
         shooterOn = Command.build()
                 .setExecute(() -> {
